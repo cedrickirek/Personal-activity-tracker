@@ -1,0 +1,23 @@
+# --- Secrets: never commit these ---
+# Real credentials live in .streamlit/secrets.toml locally and in the
+# Streamlit Cloud "Secrets" settings once deployed.
+.streamlit/secrets.toml
+# Service-account keys are downloaded as .json files. The project itself
+# has no JSON files to commit, so ignoring them all is the safest rule.
+*.json
+
+# --- Old local storage, replaced by the Google Sheet ---
+activities.csv
+
+# --- Python ---
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
