@@ -1,0 +1,8 @@
+# What the app needs to run, locally and on Streamlit Cloud.
+# Exact versions, so the deployed app runs what was tested.
+streamlit==1.67.0
+gspread==6.2.1
+pandas==3.1.1
+# Windows has no built-in timezone database; zoneinfo needs this package
+# to know what Europe/Paris is. (Linux servers have one, so it's harmless there.)
+tzdata==2026.6

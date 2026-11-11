@@ -1,0 +1,4 @@
+# Everything in requirements.txt, plus tools used only while developing.
+# Kept separate so Streamlit Cloud doesn't install them.
+-r requirements.txt
+pytest==9.2.0
