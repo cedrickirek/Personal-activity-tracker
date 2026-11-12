@@ -10,51 +10,29 @@ parent `Monitoring app` folder); this note is the state.
 
 - **Step 1 is done.** Its "done when" check passed on 2026-11-12: entries
   typed in the app appear in the Sheet and survive a page refresh.
-- Branch **`step-1-sheets`**, pushed to GitHub on 2026-11-12. Cédric chose
-  a pull request over a direct merge. Don't merge it until Cédric's
-  `issues-and-fixes/` file for Step 1 is on the branch. `main` is still the
-  original app.
+- Branch **`step-1-sheets`** went to GitHub as
+  [pull request #1](https://github.com/cedrickirek/Personal-activity-tracker/pull/1),
+  merged into `main` on 2026-11-12. Work continues from `main`; Step 2 gets
+  its own branch.
 - The Sheet `Activity-tracker` is connected through the service account
   `tracker-writer@activity-tracker-514412.iam.gserviceaccount.com`.
   `.streamlit/secrets.toml` holds the key and the Sheet ID, and is git-ignored.
 - 44 automated tests pass: `.venv/Scripts/python.exe -m pytest`.
 
-## 2. What was wrong with the original app, and what changed
+## 2. What was wrong, and what changed
 
-| # | Problem | In plain words | Technical cause | Fix |
-| --- | --- | --- | --- | --- |
-| 1 | Crash on unrecognised text | Typing "Starting emails now" crashed the page | `parse_entry()` returned `t` and `activity`, which were only assigned inside `if match:`, so no match → `UnboundLocalError` | Returns `None` instead; the page shows a hint (`tracker/legacy.py`) |
-| 2 | Crash on the "today" table | The table crashed as soon as it had a row | `.sort_values(by="Start")` on a DataFrame whose column was `"Time"` → `KeyError` | Table built from the Sheet's rows, sorted by `start` (`app.py`) |
-| 3 | Data lost | Entries vanished on refresh or redeploy | Unsaved entries lived in `st.session_state` (per browser tab, wiped on refresh); saved ones in `activities.csv` on the server's disk, which hosting platforms wipe on restart | Every entry is written straight to the Google Sheet, the single source of truth (`tracker/sheets.py`) |
-| 4 | Voice could never work online | The mic button would record the server, not my phone | `sr.Microphone()` opens the microphone of the machine running Python; language hard-coded to `en-US` | Removed; Step 3 replaces it with `st.audio_input` (records in the browser) + a transcription API |
-| 5 | Lowercased activities | "Emails to Marc" became "emails to marc" | `re.match(..., text.lower())` | Matching is case-insensitive instead |
-| 6 | Duplicate code | Two near-identical apps | `app_1.py` | Deleted; notebook moved to `notebooks/` |
+The story of this step is in
+[issues-and-fixes/step-1-google-sheets.md](../issues-and-fixes/step-1-google-sheets.md):
+the original app's problems, what Step 1 changed and why, the bug found
+during the step, and what's still wrong (the reason Step 2 adds an agent).
+Claude wrote this one at Cédric's request; from Step 2 on, Cédric writes them
+(section 7).
 
-Problems 3 and 4 come from the same wrong belief, that the Python code runs
-on the device I use the app from:
-[It worked on my laptop because my laptop was the server](../mistakes/2026-11-12-my-laptop-was-the-server.md).
+The debugging post-mortems are in `mistakes/`:
 
-Two new problems came up while building Step 1; each has a post-mortem in
-`mistakes/`:
-
-- [The Sheet kept refusing the service account](../mistakes/2026-11-12-sheet-refused-the-service-account.md): Google Cloud setup (wrong project, API off, duplicate Sheet).
+- [It worked on my laptop because my laptop was the server](../mistakes/2026-11-12-my-laptop-was-the-server.md): why the original app lost data and why its voice input couldn't work online.
 - [A filled-in-later entry overlapped the one before it](../mistakes/2026-11-12-backfilled-entry-overlapped.md): a logic bug in the new code, found by the first manual test.
-
-**Where this goes (agreed 2026-11-12).** Cédric writes the Step 1 story in
-`issues-and-fixes/step-1-google-sheets.md`; once it exists, this section
-becomes a link to it.
-
-| Issue | `issues-and-fixes/` | `mistakes/` |
-| --- | --- | --- |
-| 3 Data lost, 4 Voice can't work online | Yes, as the main reasons for Step 1 | Yes, one shared note |
-| 1, 2, 5, 6 (crashes, lowercasing, duplicate file) | Yes, as smaller fixes | No |
-| Filled-in-later entry overlapped | Yes, briefly, linking to its note | Yes |
-| The Sheet refused the service account | No (setup trouble, not a change to the app) | Yes |
-| The text input can't read time ranges ("7h40 à 8h50 somnolence") | Yes, at the end, as what's still wrong and why Step 2 adds an agent | No |
-
-Suggested outline for that file: where it started (the original app's
-problems), what Step 1 changed and why, what went wrong during the step,
-what's still wrong.
+- [The Sheet kept refusing the service account](../mistakes/2026-11-12-sheet-refused-the-service-account.md): Google Cloud setup (wrong project, API off, duplicate Sheet). Kept out of the issues-and-fixes story because it changed nothing in the app.
 
 ## 3. How the app works now, end to end
 
@@ -123,9 +101,8 @@ Step 4).
 - [ ] Delete the first service account in the `vernal-day-480009-q1` project, and its key on the iPhone.
 - [ ] Delete the key `.json` from Downloads (`secrets.toml` has everything).
 - [ ] Delete the duplicate Sheet, the test rows, and the empty `Sheet1` tab.
-- [x] Push `step-1-sheets` (done 2026-11-12; Cédric chose a pull request).
-- [ ] Open the pull request from https://github.com/cedrickirek/Personal-activity-tracker/pull/new/step-1-sheets (the GitHub CLI isn't installed on this laptop).
-- [ ] Cédric writes `issues-and-fixes/step-1-google-sheets.md` (section 2), Claude reviews; then merge the pull request.
+- [x] Push `step-1-sheets` and merge it through pull request #1 (2026-11-12).
+- [x] Write `issues-and-fixes/step-1-google-sheets.md` (2026-11-12, after the merge, so it goes to `main` in its own commit).
 - [ ] Update section 3 of `REBUILD_PLAN.md` for the model decision (section 7). Cédric's task.
 - [ ] Step 2 prerequisites: a Mistral API key, pasted into `secrets.toml` by Cédric, and the category list (open decision in the plan). An Anthropic API key (billed separately from any claude.ai subscription) is only needed from Step 4.
 
