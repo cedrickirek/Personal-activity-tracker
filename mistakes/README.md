@@ -3,11 +3,16 @@
 Debugging post-mortems for the activity tracker. One file per incident, named
 `YYYY-MM-DD-<slug>.md`.
 
-**Purpose:** I re-read these to improve as a programmer, and they show how the
-project was actually built: what broke, how it was diagnosed, and what changed
-because of it. Each entry should be useful months later, to someone who has
-forgotten the incident entirely, and should be quiz-able (the Before/After
-table is the natural question bank).
+**Purpose:** my learning log. I re-read these to improve as a programmer:
+what broke, how it was diagnosed, and what I had misunderstood. Each entry
+should be useful months later, to someone who has forgotten the incident
+entirely, and should be quiz-able (the Before/After table is the natural
+question bank).
+
+**Not the same as `issues-and-fixes/`.** That folder tells the project's
+story to a reader such as an interviewer: what forced each new version and
+what changed, one file per build step. When an issue there has a post-mortem
+here, the story stays short and links here for the detail.
 
 **What belongs here:** things that went wrong and cost real time. Bugs, wrong
 diagnoses, misunderstandings about how a library or service behaves.
@@ -54,3 +59,4 @@ Concrete diagnostic moves, not "be more careful".
 
 - [2026-11-12 — The Sheet kept refusing the service account](2026-11-12-sheet-refused-the-service-account.md)
 - [2026-11-12 — A filled-in-later entry overlapped the one before it](2026-11-12-backfilled-entry-overlapped.md)
+- [2026-11-12 — It worked on my laptop because my laptop was the server](2026-11-12-my-laptop-was-the-server.md)

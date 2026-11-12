@@ -1,7 +1,7 @@
 # 2026-11-12 — handoff (Step 1 done: Google Sheets storage)
 
-**Next session: Step 2, the logger agent, using the new way of working
-(section 6).** The plan is `REBUILD_PLAN.md` (kept outside the repo, in the
+**Next session: Step 2, the logger agent, with a Mistral model and the new
+way of working (section 7).** The plan is `REBUILD_PLAN.md` (kept outside the repo, in the
 parent `Monitoring app` folder); this note is the state.
 
 ---
@@ -10,8 +10,10 @@ parent `Monitoring app` folder); this note is the state.
 
 - **Step 1 is done.** Its "done when" check passed on 2026-11-12: entries
   typed in the app appear in the Sheet and survive a page refresh.
-- Branch **`step-1-sheets`**, not pushed yet. `main` is still the original
-  app. Whether to open a pull request or merge directly is Cédric's call.
+- Branch **`step-1-sheets`**, pushed to GitHub on 2026-11-12. Cédric chose
+  a pull request over a direct merge. Don't merge it until Cédric's
+  `issues-and-fixes/` file for Step 1 is on the branch. `main` is still the
+  original app.
 - The Sheet `Activity-tracker` is connected through the service account
   `tracker-writer@activity-tracker-514412.iam.gserviceaccount.com`.
   `.streamlit/secrets.toml` holds the key and the Sheet ID, and is git-ignored.
@@ -28,11 +30,31 @@ parent `Monitoring app` folder); this note is the state.
 | 5 | Lowercased activities | "Emails to Marc" became "emails to marc" | `re.match(..., text.lower())` | Matching is case-insensitive instead |
 | 6 | Duplicate code | Two near-identical apps | `app_1.py` | Deleted; notebook moved to `notebooks/` |
 
+Problems 3 and 4 come from the same wrong belief, that the Python code runs
+on the device I use the app from:
+[It worked on my laptop because my laptop was the server](../mistakes/2026-11-12-my-laptop-was-the-server.md).
+
 Two new problems came up while building Step 1; each has a post-mortem in
 `mistakes/`:
 
 - [The Sheet kept refusing the service account](../mistakes/2026-11-12-sheet-refused-the-service-account.md): Google Cloud setup (wrong project, API off, duplicate Sheet).
 - [A filled-in-later entry overlapped the one before it](../mistakes/2026-11-12-backfilled-entry-overlapped.md): a logic bug in the new code, found by the first manual test.
+
+**Where this goes (agreed 2026-11-12).** Cédric writes the Step 1 story in
+`issues-and-fixes/step-1-google-sheets.md`; once it exists, this section
+becomes a link to it.
+
+| Issue | `issues-and-fixes/` | `mistakes/` |
+| --- | --- | --- |
+| 3 Data lost, 4 Voice can't work online | Yes, as the main reasons for Step 1 | Yes, one shared note |
+| 1, 2, 5, 6 (crashes, lowercasing, duplicate file) | Yes, as smaller fixes | No |
+| Filled-in-later entry overlapped | Yes, briefly, linking to its note | Yes |
+| The Sheet refused the service account | No (setup trouble, not a change to the app) | Yes |
+| The text input can't read time ranges ("7h40 à 8h50 somnolence") | Yes, at the end, as what's still wrong and why Step 2 adds an agent | No |
+
+Suggested outline for that file: where it started (the original app's
+problems), what Step 1 changed and why, what went wrong during the step,
+what's still wrong.
 
 ## 3. How the app works now, end to end
 
@@ -101,13 +123,57 @@ Step 4).
 - [ ] Delete the first service account in the `vernal-day-480009-q1` project, and its key on the iPhone.
 - [ ] Delete the key `.json` from Downloads (`secrets.toml` has everything).
 - [ ] Delete the duplicate Sheet, the test rows, and the empty `Sheet1` tab.
-- [ ] Push `step-1-sheets`: pull request or direct merge.
-- [ ] Step 2 prerequisites: an Anthropic API key (billed separately from any claude.ai subscription), pasted into `secrets.toml` by Cédric; decide the category list (open decision in the plan).
+- [x] Push `step-1-sheets` (done 2026-11-12; Cédric chose a pull request).
+- [ ] Open the pull request from https://github.com/cedrickirek/Personal-activity-tracker/pull/new/step-1-sheets (the GitHub CLI isn't installed on this laptop).
+- [ ] Cédric writes `issues-and-fixes/step-1-google-sheets.md` (section 2), Claude reviews; then merge the pull request.
+- [ ] Update section 3 of `REBUILD_PLAN.md` for the model decision (section 7). Cédric's task.
+- [ ] Step 2 prerequisites: a Mistral API key, pasted into `secrets.toml` by Cédric, and the category list (open decision in the plan). An Anthropic API key (billed separately from any claude.ai subscription) is only needed from Step 4.
 
 ## 7. Next session
 
-Step 2, the logger agent, under the new way of working Cédric proposed on
-2026-11-12. In short: Cédric sets the direction and assesses the app first,
-proposes what to do, Claude corrects, they agree, then Cédric builds with
-Claude explaining what to write, where and why. Details are being agreed in
-chat; record the final version here before starting.
+Step 2, the logger agent.
+
+**Model decision (2026-11-12; changes section 3 of the plan).** The logger
+agent uses a **Mistral** model through Mistral's API, partly because Cédric
+is preparing for an interview with Mistral. The daily brief (Step 4) stays
+on **Claude**. Keep the tool definitions and their checks independent of the
+provider, with a thin model client as the only Mistral-specific code, so the
+model can be swapped by configuration. `secrets.toml.example` needs a
+`MISTRAL_API_KEY` and a Mistral `LOGGER_MODEL`; choose the model at the start
+of Step 2 and check current names and prices then.
+
+**Long-term goal:** replace the hosted logger with a small open-weight
+Mistral model fine-tuned on this task (Cédric said Mistral 7B; newer small
+Mistral models may fit better). Order: collect examples (`raw_input` and
+corrections) and build an evaluation set, then a supervised fine-tune
+(LoRA), then reinforcement learning with a reward computed by checking the
+tool calls, then decide where it runs. Streamlit Community Cloud can't run a
+7B model, and this laptop is short on memory.
+
+**Way of working (agreed 2026-11-12):**
+
+1. Cédric gives the direction.
+2. Cédric assesses the current state of the app to find the next steps.
+3. Claude asks what Cédric thinks should be done; Cédric answers; Claude
+   corrects, with reasons.
+4. They agree on the corrected plan.
+5. They build. Cédric types the core: the agent loop, tool definitions,
+   prompts and validation, anything an interviewer would ask about. Claude
+   drafts the boilerplate (test scaffolding, config, requirements), and
+   Cédric explains it back before it's committed.
+6. Cédric runs and tests it.
+7. Cédric writes the step's file in `issues-and-fixes/` in Cédric's own
+   voice, and Claude reviews it. Cédric makes the commits.
+
+Claude asks clarifying questions instead of assuming, especially when a new
+concept, folder or convention comes up.
+
+**Where things are written:**
+
+- `issues-and-fixes/`: the project's story for a reader such as an
+  interviewer. What went wrong, what forced each new version, and what
+  changed. One file per build step, written by Cédric.
+- `mistakes/`: Cédric's learning log of debugging post-mortems (template in
+  `mistakes/README.md`). An `issues-and-fixes/` file links here for the
+  detail instead of copying it.
+- `notes/`: session handoffs like this one.
