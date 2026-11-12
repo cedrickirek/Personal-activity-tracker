@@ -35,6 +35,17 @@ def test_new_entry_closes_the_running_one(store):
     assert second["date"] == "2026-11-11"
 
 
+def test_back_filled_entry_shortens_the_activity_it_interrupts(store):
+    # The sequence from the first real test run: Reveil ended up overlapping somnolence.
+    legacy.log_entry(store, "07:40", "Reveil", "7h40 Reveil", now=NOW)
+    legacy.log_entry(store, "12:00", "Angelus", "12h00 Angelus", now=NOW)
+    legacy.log_entry(store, "08:50", "somnolence", "8h50 somnolence", now=NOW)
+    rows = {row["activity"]: row for row in store.list_activities()}
+    assert (rows["Reveil"]["start"], rows["Reveil"]["end"]) == ("07:40", "08:50")
+    assert (rows["somnolence"]["end"], rows["somnolence"]["status"]) == ("12:00", "done")
+    assert rows["Angelus"]["status"] == "in_progress"
+
+
 def test_back_filled_entry_ends_at_the_next_start(store):
     legacy.log_entry(store, "12:30", "lunch", "12h30 lunch", now=NOW)
     earlier = legacy.log_entry(store, "09:30", "QRT prep", "9h30 QRT prep", now=NOW)

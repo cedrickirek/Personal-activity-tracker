@@ -51,9 +51,14 @@ def log_entry(
     today = timeutils.today_str(now)
     todays = store.list_activities(date=today)
 
-    # 1. Whatever was still running when this activity started has now ended.
+    # 1. Whatever was going on at `start` stops there. That is the activity
+    #    still running, and also an earlier activity whose end runs past
+    #    `start`. Moving that end is safe here because this input can't state
+    #    an end: every end it wrote was inferred by this same rule.
     for row in todays:
-        if row["status"] == "in_progress" and row["start"] <= start:
+        running = row["status"] == "in_progress" and row["start"] <= start
+        interrupted = row["status"] == "done" and row["start"] < start < row["end"]
+        if running or interrupted:
             store.update_activity(row["id"], {"end": start, "status": "done"})
 
     # 2. An entry filled in after the fact (earlier than something already
