@@ -1,7 +1,7 @@
 # 2026-11-13 — handoff (v2 light version deployed)
 
-**Next session: finish Step 1b's loose ends (below), then Step 2, the logger
-agent (Mistral), under the way of working in section 14 of the plan.**
+**Next session: Step 2, the logger agent (Mistral), under the way of
+working in section 14 of the plan, after the loose ends in section 2.**
 The brief is `REBUILD_PLAN_v2.md`, in the parent `Monitoring app` folder,
 outside the repo. Read it first; this note is the state.
 
@@ -17,18 +17,16 @@ outside the repo. Read it first; this note is the state.
 - **v2 Step 1 is live** on Vercel (pull request #2, merged). Tested on the
   iPhone: login, entries in several formats, survives a refresh, rows in the
   Sheet's `Activities` tab.
-- **Step 1b is on branch `v2-step-1b`**, pushed, **not merged**, no pull
-  request yet. It adds: setup errors shown as a sentence, the time and date
-  at the end of the line (`test 9h30`), a home-screen icon and full-screen
-  launch, and a separate `Activities-preview` tab for branch test
-  deployments.
+- **Step 1b is live too** (pull request #3, merged 2026-11-13). It adds:
+  setup errors shown as a sentence, the time and date at the end of the line
+  (`test 9h30`), a home-screen icon and full-screen launch, and a separate
+  `Activities-preview` tab for branch test deployments.
 - 109 tests pass: `cd web && npm test`.
 
 ## 2. Waiting on Cédric
 
 - [ ] Vercel → Settings → Environment Variables: tick **Preview** on the 5
       variables, and add `ACTIVITIES_TAB=Activities-preview` for Preview only.
-- [ ] Open the Step 1b pull request (`/compare/main...v2-step-1b`) and merge it.
 - [ ] iPhone: Safari → Share → Add to Home Screen; log in once inside it.
 - [ ] Delete the `Activities-dev` tab (Claude's local test rows).
 - [ ] Optional: `winget install GitHub.cli` then `gh auth login`, so Claude
