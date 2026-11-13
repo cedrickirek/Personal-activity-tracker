@@ -33,7 +33,7 @@ refresh, even on my laptop: session state lives in the server's memory, one
 copy per browser tab, and a refresh starts a new one.
 
 On my laptop, none of the first three shows, because the browser and the
-server are the same computer. They were flagged in `REBUILD_PLAN.md` and
+server are the same computer. They were flagged in the rebuild plan (now `REBUILD_PLAN_v1.md`) and
 account for two of its five steps.
 
 ## 2. Before / After

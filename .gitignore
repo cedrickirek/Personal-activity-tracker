@@ -2,9 +2,15 @@
 # Real credentials live in .streamlit/secrets.toml locally and in the
 # Streamlit Cloud "Secrets" settings once deployed.
 .streamlit/secrets.toml
-# Service-account keys are downloaded as .json files. The project itself
-# has no JSON files to commit, so ignoring them all is the safest rule.
+# Service-account keys are downloaded as .json files, so every .json is
+# ignored by default. The only exceptions are the web app's own config files.
 *.json
+!web/package.json
+!web/package-lock.json
+!web/tsconfig.json
+# The web app's secrets (web/.gitignore also ignores .env* files).
+web/.env*
+!web/.env.example
 
 # --- Old local storage, replaced by the Google Sheet ---
 activities.csv
