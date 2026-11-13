@@ -95,6 +95,42 @@ describe("a date", () => {
   });
 });
 
+describe("the time and date at the end", () => {
+  it.each([
+    ["test 9h30", { date: null, start: t("09:30"), end: null, activity: "test" }],
+    ["QRT prep 9:30", { date: null, start: t("09:30"), end: null, activity: "QRT prep" }],
+    ["QRT prep 9h30-10h15", { date: null, start: t("09:30"), end: t("10:15"), activity: "QRT prep" }],
+    ["QRT prep 9h30 10h15", { date: null, start: t("09:30"), end: t("10:15"), activity: "QRT prep" }],
+    ["manger yesterday 21h00 22h15", { date: "2026-11-12", start: t("21:00"), end: t("22:15"), activity: "manger" }],
+    ["gym 12 nov 21h", { date: "2026-11-12", start: t("21:00"), end: null, activity: "gym" }],
+    ["sleep 23h30 7h45", { date: null, start: t("23:30"), end: t("07:45"), activity: "sleep" }],
+  ])("%s", (text, expected) => {
+    expect(ok(text)).toEqual(expected);
+  });
+
+  it("drops the little word before the time", () => {
+    expect(ok("lunch at 12h").activity).toBe("lunch");
+    expect(ok("manger à 12h").activity).toBe("manger");
+    expect(ok("manger de 12h à 13h")).toMatchObject({ start: t("12:00"), end: t("13:00"), activity: "manger" });
+    expect(ok("QRT prep - 9h30").activity).toBe("QRT prep");
+  });
+
+  it("keeps words that only look similar", () => {
+    expect(ok("chat 9h").activity).toBe("chat");
+    expect(ok("manger").start).toBeNull();
+    expect(ok("call Marc about 2 slides")).toMatchObject({ start: null, activity: "call Marc about 2 slides" });
+  });
+
+  it.each([
+    ["gym yesterday", "needs a time"],
+    ["gym 25h", "isn't a valid time"],
+    ["gym 9h3", "couldn't read that time"],
+    ["gym 9h30 25h", "isn't a valid time"],
+  ])("rejects %j", (text, message) => {
+    expect(rejected(text)).toContain(message);
+  });
+});
+
 describe("rejected", () => {
   it.each([
     ["", "Type an activity"],
