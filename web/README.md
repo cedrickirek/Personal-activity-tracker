@@ -36,6 +36,12 @@ with my real days.
 ## Deploy
 
 Vercel project with **Root Directory `web`**. The variables of
-`.env.example` are set in the project's settings, for the Production
-environment only, and without `ACTIVITIES_TAB` so it writes to `Activities`.
-Merging into `main` deploys.
+`.env.example` are set in the project's settings:
+
+- **Production** (merging into `main`): every variable except
+  `ACTIVITIES_TAB`, so it writes to `Activities`.
+- **Preview** (every other branch gets its own test address): the same
+  variables plus `ACTIVITIES_TAB=Activities-preview`, so testing a branch
+  never touches my real days.
+
+Settings only reach new deployments: after changing one, redeploy.

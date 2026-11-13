@@ -21,6 +21,22 @@ function required(name: string): string {
   return value;
 }
 
+/**
+ * The setup problem as a sentence, or null if every setting is there. Pages
+ * call this first and show the sentence, because in production Next.js hides
+ * the message of an error thrown while rendering (the first deployment showed
+ * only "A server error occurred" for a misspelt APP_PASSWORD).
+ */
+export function configProblem(): string | null {
+  try {
+    getConfig();
+    return null;
+  } catch (error) {
+    if (error instanceof ConfigError) return error.message;
+    throw error;
+  }
+}
+
 export function getConfig(): Config {
   const sessionSecret = required("SESSION_SECRET");
   if (sessionSecret.length < 32) {
