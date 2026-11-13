@@ -7,7 +7,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { endSession, requireLogin, startSession } from "@/lib/auth";
-import { getConfig } from "@/lib/config";
+import { configProblem, getConfig } from "@/lib/config";
 import { getStore } from "@/lib/google-sheets";
 import { parseEntry } from "@/lib/parse";
 import { planEntry, planStop } from "@/lib/periods";
@@ -24,6 +24,8 @@ export type FormState = {
 };
 
 export async function login(_previous: FormState, formData: FormData): Promise<FormState> {
+  const problem = configProblem();
+  if (problem) return { status: "error", message: problem, text: "", at: Date.now() };
   const password = String(formData.get("password") ?? "");
   if (!passwordMatches(password, getConfig().appPassword)) {
     // Slows down anyone trying passwords one after another.

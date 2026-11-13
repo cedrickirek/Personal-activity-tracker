@@ -3,7 +3,7 @@
 // the live Sheet), so a refresh always shows what's really in the Sheet.
 
 import { requireLogin } from "@/lib/auth";
-import { ConfigError } from "@/lib/config";
+import { ConfigError, configProblem } from "@/lib/config";
 import { getStore } from "@/lib/google-sheets";
 import { FORMAT_HELP } from "@/lib/parse";
 import { todayView, type TodayItem } from "@/lib/periods";
@@ -11,8 +11,11 @@ import { SheetSchemaError } from "@/lib/store";
 import { parisNow } from "@/lib/time";
 import { logout } from "./actions";
 import { EntryForm } from "./entry-form";
+import { SetupProblem } from "./setup-problem";
 
 export default async function Home() {
+  const setup = configProblem();
+  if (setup) return <SetupProblem message={setup} />;
   await requireLogin();
   const now = parisNow();
 
